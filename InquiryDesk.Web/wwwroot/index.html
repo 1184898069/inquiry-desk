@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>询盘跟进台 InquiryDesk</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>询盘跟进台</h1>
+        <p class="subtitle">客户询盘统一登记、跟进提醒、状态流转，一个页面管完。</p>
+    </header>
+
+    <!-- 顶部统计卡片，由 app.js 从 /api/stats 渲染 -->
+    <section id="statCards" class="cards"></section>
+
+    <!-- 到期提醒：逾期的标红，今日待跟的标橙 -->
+    <section class="panel">
+        <h2>到期提醒</h2>
+        <div id="dueList"></div>
+    </section>
+
+    <!-- 工具栏：筛选 + 导出 + 新建 -->
+    <section class="panel">
+        <div class="toolbar">
+            <label>状态
+                <select id="filterStatus">
+                    <option value="">全部</option>
+                    <option value="New">新询盘</option>
+                    <option value="Contacted">已联系</option>
+                    <option value="FollowingUp">跟进中</option>
+                    <option value="Won">已成交</option>
+                    <option value="Lost">已流失</option>
+                </select>
+            </label>
+            <label>意向
+                <select id="filterIntent">
+                    <option value="">全部</option>
+                    <option value="High">高</option>
+                    <option value="Medium">中</option>
+                    <option value="Low">低</option>
+                </select>
+            </label>
+            <button id="exportButton" type="button">导出 CSV</button>
+            <button id="toggleCreateButton" type="button" class="primary">+ 新建询盘</button>
+        </div>
+
+        <!-- 新建询盘表单，默认收起 -->
+        <form id="createForm" class="create-form" hidden>
+            <div class="form-grid">
+                <label>客户名 *
+                    <input id="createCustomerName" type="text" required placeholder="如：宏远机械 张建国">
+                </label>
+                <label>联系方式
+                    <input id="createContactInfo" type="text" placeholder="电话 / 微信 / 邮箱">
+                </label>
+                <label>来源
+                    <select id="createSource">
+                        <option value="Website">网站</option>
+                        <option value="Exhibition">展会</option>
+                        <option value="Referral">转介绍</option>
+                        <option value="Phone">电话</option>
+                        <option value="Other">其他</option>
+                    </select>
+                </label>
+                <label>意向等级
+                    <select id="createIntent">
+                        <option value="High">高</option>
+                        <option value="Medium" selected>中</option>
+                        <option value="Low">低</option>
+                    </select>
+                </label>
+                <label>下次跟进时间
+                    <input id="createNextFollowUpAt" type="datetime-local">
+                </label>
+            </div>
+            <label>询盘内容 *
+                <textarea id="createContent" rows="3" required placeholder="客户问了什么、想要什么"></textarea>
+            </label>
+            <div class="form-actions">
+                <button type="submit" class="primary">保存</button>
+                <button type="button" id="cancelCreateButton">取消</button>
+            </div>
+        </form>
+
+        <!-- 询盘表格，点击一行打开下方详情 -->
+        <table id="inquiryTable">
+            <thead>
+                <tr>
+                    <th>客户</th>
+                    <th>联系方式</th>
+                    <th>来源</th>
+                    <th>询盘内容</th>
+                    <th>意向</th>
+                    <th>状态</th>
+                    <th>下次跟进</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody id="inquiryTableBody"></tbody>
+        </table>
+        <p id="emptyHint" class="hint" hidden>没有符合条件的询盘。</p>
+    </section>
+
+    <!-- 详情区：改状态、加跟进记录、改下次跟进时间 -->
+    <section id="detailSection" class="panel" hidden>
+        <div class="detail-header">
+            <h2 id="detailTitle">询盘详情</h2>
+            <button id="closeDetailButton" type="button">关闭</button>
+        </div>
+        <div id="detailInfo"></div>
+
+        <h3>变更状态</h3>
+        <div class="inline-form">
+            <select id="detailStatusSelect">
+                <option value="New">新询盘</option>
+                <option value="Contacted">已联系</option>
+                <option value="FollowingUp">跟进中</option>
+                <option value="Won">已成交</option>
+                <option value="Lost">已流失</option>
+            </select>
+            <button id="changeStatusButton" type="button" class="primary">保存状态</button>
+            <span class="hint">流转顺序：新询盘 → 已联系 → 跟进中 → 已成交 / 已流失（流失可从任何状态直达）。</span>
+        </div>
+
+        <h3>跟进记录</h3>
+        <div id="noteList"></div>
+        <form id="noteForm" class="note-form">
+            <textarea id="noteContent" rows="3" required placeholder="这次联系聊了什么、下一步是什么"></textarea>
+            <div class="inline-form">
+                <label>同时设置下次跟进时间
+                    <input id="noteNextFollowUpAt" type="datetime-local">
+                </label>
+                <button type="submit" class="primary">添加记录</button>
+            </div>
+        </form>
+    </section>
+
+    <script src="app.js"></script>
+</body>
+</html>

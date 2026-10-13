@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+
+    <!-- 测试用 xUnit v3 + Microsoft.Testing.Platform：测试项目本身就是
+         可执行程序，测试在进程内直接跑完，不走 VSTest 的 TCP 回连通道。
+         某些沙箱/代理环境会劫持 .NET 进程的出站 TCP 连接（实测连
+         127.0.0.1 也会被转到出口代理），VSTest 在这类环境里永远连不上
+         testhost；MTP 模式不受影响。运行命令仍是 dotnet test，
+         也可以用 dotnet run 直接跑测试项目。 -->
+    <OutputType>Exe</OutputType>
+    <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" Version="4.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\InquiryDesk.Web\InquiryDesk.Web.csproj" />
+  </ItemGroup>
+
+</Project>
